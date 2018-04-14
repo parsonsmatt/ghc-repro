@@ -3,12 +3,6 @@
 
 module Main where
 
-import           Control.Monad.Fix
-import           Data.String            (IsString (..))
-import           Data.Typeable
-import           GHC.Exts               (Constraint, coerce)
-import           GHC.TypeLits
-
 import Control.Monad.ST
 
 theThing :: ST s ()
