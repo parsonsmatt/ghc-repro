@@ -1,19 +1,5 @@
-{-# LANGUAGE AllowAmbiguousTypes        #-}
-{-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE FlexibleContexts           #-}
-{-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE InstanceSigs               #-}
-{-# LANGUAGE KindSignatures             #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE RecursiveDo                #-}
-{-# LANGUAGE ScopedTypeVariables        #-}
-{-# LANGUAGE TypeApplications           #-}
-{-# LANGUAGE TypeOperators              #-}
-{-# LANGUAGE UndecidableInstances       #-}
 
 module Main where
 
@@ -25,19 +11,29 @@ import           GHC.TypeLits
 
 import Control.Monad.ST
 
+theThing :: ST s ()
+theThing = pure ()
 
 weirdlyLocal :: ST s ()
-weirdlyLocal = pure ()
+weirdlyLocal = theThing
 
 runSTIO :: (forall s. ST s a) -> IO a
 runSTIO x = pure (runST x)
 
-largerFunction :: IO ()
-largerFunction = do
-    runSTIO $ do
-        weirdlyLocal
+thisWorks :: IO ()
+thisWorks = mdo
+    let weirdlyLocal = theThing
+    runSTIO weirdlyLocal
+    runSTIO weirdlyLocal
 
-    runSTIO $ do
-        weirdlyLocal
+thisBreaks :: IO ()
+thisBreaks = mdo
+    runSTIO weirdlyLocal
+    let weirdlyLocal = theThing
+    runSTIO weirdlyLocal
 
-    pure ()
+thisIsFine :: IO ()
+thisIsFine = mdo
+    runSTIO weirdlyLocal
+    let asdf = theThing
+    runSTIO asdf
